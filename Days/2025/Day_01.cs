@@ -3,7 +3,14 @@ namespace AdventOfCode_2025.Days;
 internal class Day01 : Day {
 
     public override object Basic() {
-        return -1;
+        int current = _Start;
+        _Input.ForEach(line => {
+            current = Rotation(current, line[0].ToString(), int.Parse(line[1..]));
+            if(current == 0) {
+                _Reset++;
+            }
+        });
+        return _Reset;
     }
 
     public override object Advanced() {
@@ -29,6 +36,22 @@ internal class Day01 : Day {
     #endregion
 
     #region Private
+
+    private int _Start = 50;
+    private int _Max = 100;
+    private int _Reset = 0;
+    private int Rotation(int current, string direction, int steps) {
+        int multiplier = direction.ToLower() switch {
+            "l" => -1,
+            "r" => 1,
+            _ => throw new ArgumentException("Invalid direction")
+        };
+        var result = (current + (multiplier * steps)) % _Max;
+        if(result < 0) {
+            result += _Max;
+        }
+        return result;
+    }
 
     #endregion
 
