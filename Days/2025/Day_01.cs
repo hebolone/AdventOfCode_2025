@@ -1,3 +1,5 @@
+using System.Net.WebSockets;
+
 namespace AdventOfCode_2025.Days;
 
 internal class Day01 : Day {
@@ -14,24 +16,19 @@ internal class Day01 : Day {
     }
 
     public override object Advanced() {
-        return -1;
+        int current = _Start;
+        int clicks = 0;
+        _Input.ForEach(line => {
+            (current, clicks) = RotationAdvanced(current, line[0].ToString(), int.Parse(line[1..]));
+            if(current == 0) {
+                _Reset++;
+            }
+            _Reset += clicks;
+        });
+        return _Reset;
     }
 
     #region Protected
-
-    // protected override void Parse(List<string> input) {
-    //     Regex regex = new(@"(?<left>\d+)\s+(?<right>\d+)", RegexOptions.Compiled);
-    //     input.ForEach(l => {
-    //         MatchCollection matches = regex.Matches(l);
-    //         foreach (Match match in matches.Cast<Match>()) {
-    //             GroupCollection groups = match.Groups;
-    //             var left_value = int.Parse(groups["left"].Value);
-    //             var right_value = int.Parse(groups["right"].Value);
-    //             _Left.Add(left_value);
-    //             _Right.Add(right_value);
-    //         }
-    //     });
-    // }
 
     #endregion
 
@@ -51,6 +48,26 @@ internal class Day01 : Day {
             result += _Max;
         }
         return result;
+    }
+
+    private (int, int) RotationAdvanced(int current, string direction, int steps) {
+        int multiplier = direction.ToLower() switch {
+            "l" => -1,
+            "r" => 1,
+            _ => throw new ArgumentException("Invalid direction")
+        };
+        var resultPartial =  current + (multiplier * steps);
+        var resetDuringRotation = 0;
+        if(resultPartial < 0 || resultPartial >= _Max) {
+            int noOfClicks = resultPartial / 100;
+            resultPartial = noOfClicks;            
+        }
+        var result = resultPartial % _Max;
+        if(result < 0 || result >= _Max) {
+            result += _Max;
+        }
+        Console.WriteLine($"{current} : {direction}{steps} --> {result} (resets: {resetDuringRotation})");
+        return (result, resetDuringRotation);
     }
 
     #endregion

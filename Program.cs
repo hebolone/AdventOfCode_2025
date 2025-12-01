@@ -4,7 +4,7 @@ var daysBuilder = new DaysBuilder(basePath: configuration!.Settings.InputFilesDi
 
 daysBuilder
     .AddDay(1, new Day01())
-    //.SetTests()
+    .SetTests()
 //    .Solve();
-    .Solve(solveType: TSolveType.BASIC);    
-//    .Solve(solveType: TSolveType.ADVANCED);
+   // .Solve(solveType: TSolveType.BASIC);    
+    .Solve(solveType: TSolveType.ADVANCED);
