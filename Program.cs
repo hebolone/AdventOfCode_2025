@@ -1,10 +1,12 @@
 ﻿using var reader = new StreamReader("appsettings.json");
 var configuration = JsonSerializer.Deserialize<Configuration>(reader.BaseStream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-var daysBuilder = new DaysBuilder(basePath: configuration!.Settings.InputFilesDir);
+var year = configuration?.Settings.Year;
+var inputDir = configuration!.Settings.InputFilesDir.Replace("%1%", year.ToString());
+var daysBuilder = new DaysBuilder(basePath: inputDir);
 
 daysBuilder
     .AddDay(1, new Day01())
-    .SetTests()
+ //   .SetTests()
 //    .Solve();
    // .Solve(solveType: TSolveType.BASIC);    
     .Solve(solveType: TSolveType.ADVANCED);
