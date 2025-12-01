@@ -57,12 +57,12 @@ internal class Day01 : Day {
             _ => throw new ArgumentException("Invalid direction")
         };
         var resultPartial =  current + (multiplier * steps);
+        var result = resultPartial % _Max;
         var resetDuringRotation = 0;
         if(resultPartial < 0 || resultPartial >= _Max) {
-            int noOfClicks = resultPartial / 100;
-            resultPartial = noOfClicks;            
+            int noOfClicks = (resultPartial / 100) + 1;
+            resetDuringRotation = noOfClicks;            
         }
-        var result = resultPartial % _Max;
         if(result < 0 || result >= _Max) {
             result += _Max;
         }
