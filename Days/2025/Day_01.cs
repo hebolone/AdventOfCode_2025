@@ -20,11 +20,12 @@ internal class Day01 : Day {
         int current = _Start;
         int reset = 0;
         int clicks = 0;
+        
         _Input.ForEach(line => {
             (current, clicks) = Rotation(current, line[0].ToString(), int.Parse(line[1..]));
             reset += clicks;
         });
-        return reset;
+         return reset;
     }
 
     #region Private
@@ -42,37 +43,21 @@ internal class Day01 : Day {
         var result = resultPartial % _Max;
         var resetDuringRotation = 0;
         
-        
-        
-        
         if(result < 0 || result >= _Max) {
             // Adjust for negative modulo results 
             result += multiplier * -1 * _Max;
-        } else if(result == 0) {
-            resetDuringRotation = 1;
-        } 
+        }
 
-        result = resultPartial switch {
-            < 0 => (Math.Abs(resultPartial) / _Max) + 1,
-            0 => resultPartial,
-            >= _Max => resultPartial / _Max,
-            _ => -99
-        };
+        int noOfClicks = 0;
+        if(resultPartial < 0) {
+            noOfClicks = (Math.Abs(resultPartial) / _Max) + (start == 0 ? 0 : 1);
+        } else if(resultPartial >= _Max) {
+            noOfClicks = resultPartial / _Max;
+        } else if(resultPartial == 0) {
+            noOfClicks = 1;
+        }
+        resetDuringRotation += noOfClicks;
 
-        
-        //if(/*current != 0 && */resultPartial != 0) {
-            int noOfClicks = 0;
-            if(resultPartial < 0) {
-                noOfClicks = (Math.Abs(resultPartial) / _Max) + 1;
-            } else if(resultPartial >= _Max) {
-                noOfClicks = resultPartial / _Max;
-            }
-            resetDuringRotation += noOfClicks;
-        //}
-        
-
-        Console.WriteLine($"{start} : {direction}{steps} --> {result} (reset: {result == 0}, clicks: {resetDuringRotation})");
-        
         return (result, resetDuringRotation);
     }
 
