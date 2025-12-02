@@ -1,6 +1,3 @@
-using System.Formats.Asn1;
-using System.Net.WebSockets;
-
 namespace AdventOfCode_2025.Days;
 
 internal class Day02 : Day {
@@ -12,12 +9,7 @@ internal class Day02 : Day {
             invalidIDs.AddRange(invalidIDsInRange);
         });
 
-        long result = 0;
-        foreach (var invalidID in invalidIDs) {
-            result += invalidID;    
-        }
-
-        return result;
+        return invalidIDs.Sum();
     }
 
     public override object Advanced() {
@@ -27,12 +19,7 @@ internal class Day02 : Day {
             invalidIDs.AddRange(invalidIDsInRange);
         });
 
-        long result = 0;
-        foreach (var invalidID in invalidIDs) {
-            result += invalidID;    
-        }
-
-        return result;
+        return invalidIDs.Sum();
     }
 
     #region Protected

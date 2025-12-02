@@ -1,5 +1,3 @@
-using System.Net.WebSockets;
-
 namespace AdventOfCode_2025.Days;
 
 internal class Day01 : Day {
@@ -33,7 +31,7 @@ internal class Day01 : Day {
     private const int _Start = 50;
     private const int _Max = 100;
 
-    private (int, int) Rotation(int start, string direction, int steps) {
+    private static (int, int) Rotation(int start, string direction, int steps) {
         int multiplier = direction.ToLower() switch {
             "l" => -1,
             "r" => 1,
