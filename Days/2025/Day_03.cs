@@ -3,7 +3,7 @@ namespace AdventOfCode_2025.Days;
 internal class Day03 : Day {
 
     public override object Basic() {
-        return -1;
+        return _HighestVoltages.Values.Sum();
     }
 
     public override object Advanced() {
@@ -42,7 +42,7 @@ internal class Day03 : Day {
 
         int avoidLastCharacter = startIndex == 0 ? 1 : 0;
 
-        for(int i = startIndex; i < input.Length - 1 - avoidLastCharacter; i++) {
+        for(int i = startIndex; i < input.Length - avoidLastCharacter; i++) {
             int v = int.Parse(input[i].ToString());
             if(v > highest) {
                 highest = v;
