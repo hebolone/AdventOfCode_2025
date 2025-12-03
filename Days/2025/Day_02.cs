@@ -4,7 +4,7 @@ internal class Day02 : Day {
 
     public override object Basic() {
         List<long> invalidIDs = [];
-        _Ranges.ForEach(r =>{
+        _Ranges.ForEach(r => {
             var invalidIDsInRange = CheckRange(r, IsInvalid);
             invalidIDs.AddRange(invalidIDsInRange);
         });
