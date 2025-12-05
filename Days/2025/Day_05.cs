@@ -75,14 +75,14 @@ internal class Day05 : Day {
         return false;
     }
 
-    private bool AreRangesOverlapped(IDRange range1, IDRange range2) {
+    private static bool AreRangesOverlapped(IDRange range1, IDRange range2) {
         if(range1.Start <= range2.End && range1.End >= range2.Start) {
             return true;
         }
         return false;
     }
 
-    private List<IDRange> IntersectRanges(IDRange range1, IDRange range2) {
+    private static List<IDRange> IntersectRanges(IDRange range1, IDRange range2) {
         var intersectedRanges = new List<IDRange>();
 
         if(!AreRangesOverlapped(range1, range2)) {
