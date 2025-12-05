@@ -16,7 +16,24 @@ internal class Day05 : Day {
 
     public override object Advanced() {
         ulong retValue = 0;
+        //  Sort ranges
+        _IDRanges.Sort((r1, r2) => r1.Start.CompareTo(r2.Start));
+        //  Procede to merge
+        var mergedRanges = new List<IDRange>();
+        IDRange currentRange = _IDRanges[0];
 
+        for(int i = 1; i < _IDRanges.Count; i++) {
+            var nextRange = _IDRanges[i];
+            var intersectedRanges = IntersectRanges(currentRange, nextRange);
+            if(intersectedRanges.Count == 1) {
+                //  Merged
+                currentRange = intersectedRanges[0];
+            } else {
+                //  Not merged
+                mergedRanges.Add(currentRange);
+                currentRange = nextRange;
+            }
+        }
         return retValue;
     }
 
