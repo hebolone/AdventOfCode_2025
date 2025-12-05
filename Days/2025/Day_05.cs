@@ -34,6 +34,12 @@ internal class Day05 : Day {
                 currentRange = nextRange;
             }
         }
+
+        mergedRanges.Add(currentRange);
+        mergedRanges.ForEach(range => {
+            retValue += (range.End - range.Start + 1);
+        });
+
         return retValue;
     }
 
@@ -70,12 +76,6 @@ internal class Day05 : Day {
     }
 
     private bool AreRangesOverlapped(IDRange range1, IDRange range2) {
-        //  Types of overlap:
-        //  1. range1 start is inside range2
-        //  2. range1 end is inside range2
-        //  3. range1 completely covers range2
-        //  4. range2 completely covers range1
-        
         if(range1.Start <= range2.End && range1.End >= range2.Start) {
             return true;
         }
