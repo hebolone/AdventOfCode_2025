@@ -41,13 +41,13 @@ internal class Day04 : Day {
             var adjacents = _Board?.GetSurrounding(i);
             int rollsOfPaper = 0;
             if(_Board?[i] == _RollOfPaper) {
-                foreach(var adjacent in adjacents) {
+                foreach(var adjacent in adjacents!) {
                     if(_Board?[adjacent] == _RollOfPaper) {
                         rollsOfPaper ++;
                     }
                 }
                 if(rollsOfPaper < MAXROLLSOFPAPER) {
-                    retValue.Add(_Board?.ConvertIndexToCoordinates(i));
+                    retValue.Add(_Board!.ConvertIndexToCoordinates(i));
                 }
             }
         }
