@@ -10,8 +10,9 @@ daysBuilder
     //.AddDay(3, new Day03())
     //.AddDay(4, new Day04())
     //.AddDay(5, new Day05())
-    .AddDay(6, new Day06())
+    //.AddDay(6, new Day06())
+    .AddDay(7, new Day07())
     //.SetTests()
-    //.Solve();
-    .Solve(solveType: TSolveType.BASIC);    
-    //.Solve(solveType: TSolveType.ADVANCED);
+    .Solve();
+    //.Solve(solveType: TSolveType.BASIC);
+//    .Solve(solveType: TSolveType.ADVANCED);

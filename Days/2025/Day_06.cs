@@ -1,4 +1,5 @@
 using System.Data;
+using System.Numerics;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 
@@ -9,45 +10,65 @@ internal partial class Day06 : Day {
     public override object Basic() {
         ulong result = 0;
 
-
-        for(int column = 0; column < _Numbers.First().Value.Count; column ++) {
+        for(int index = 0; index < _NumbersString.First().Value.Count; index ++) {
             List<int> numbers = [];
-            for(int row = 0; row < _Numbers.Count; row ++) {
-                numbers.Add(_Numbers[row][column]);
+            for(int row = 0; row < _NumbersString.Count; row ++) {
+                numbers.Add(int.Parse(_NumbersString[row][index]));
             }
-            var partial = PerformOperation(numbers, _Operands[column]);
+            result += PerformOperation(numbers, _OperandsDatas[index].Operand);
+        }
+
+        return result;
+    }
+
+    public override object Advanced() {
+        ulong result = 0;
+
+        for(int index = 0; index < _OperandsDatas.Count; index ++) {
+            List<string> numbers = [];
+            for(int row = 0; row < _NumbersString.Count; row++) {
+                numbers.Add(_NumbersString[row][index]);
+            }
+
+            var partial = PerformOperationAdvanced(numbers, _OperandsDatas[index].Operand);
             result += partial;
         }
 
         return result;
     }
 
-    public override object Advanced() => -1;
-
     #region Protected
 
     protected override void Parse(List<string> input) {
-        int rowID = 0;
+        string operandsLine = input.Last();
+        var lineLength = operandsLine.Length;
+
+        //  Parse operands
         List<char> availableOperands = ['+', '*'];
-        foreach (var line in input) {
-            //  Is this a row of numbers or a row of operands?
-            char firstChar = line[0];
-            if(availableOperands.Contains(firstChar)) {
-                Regex regexOperands = RegexOperands();
-                MatchCollection matches = regexOperands.Matches(line);
-                foreach (Match match in matches) {
-                    _Operands.Add(match.Value[0]);
-                }
+        for(int i = 0; i < lineLength; i ++) {
+            if(availableOperands.Contains(operandsLine[i])) {
+                char operand = operandsLine[i];
+                _OperandsDatas.Add(new(operand, i));
+            }         
+        }
+
+        for(int i = 0; i < input.Count - 1; i ++) {
+            _NumbersString.Add(i, []);
+        }
+
+        //  Parse values
+        for(int op = 0; op < _OperandsDatas.Count; op ++) {
+            int spacing;
+            if (op == _OperandsDatas.Count - 1) {
+                spacing = operandsLine.Length - _OperandsDatas[op].Position;
             } else {
-                Regex regexNumbers = RegexNumbers();
-                MatchCollection matches = regexNumbers.Matches(line);
-                List<int> row = [];
-                foreach (Match match in matches) {
-                    row.Add(int.Parse(match.Value));
-                }
-                _Numbers.Add(rowID, row);
+                spacing = _OperandsDatas[op + 1].Position - _OperandsDatas[op].Position - 1;;
             }
-            rowID++;
+            for(int i = 0; i < input.Count - 1; i ++) {
+                var startFrom = _OperandsDatas[op].Position;
+                var s = input[i].Substring(startFrom, spacing);
+                _NumbersString[i].Add(s);
+            }
         }
     }
 
@@ -55,14 +76,9 @@ internal partial class Day06 : Day {
 
     #region Private
 
-    private readonly Dictionary<int, List<int>> _Numbers = [];
-    private readonly List<char> _Operands = [];
-
-    [GeneratedRegex(@"\b\d+\b")]
-    private static partial Regex RegexNumbers();
-
-    [GeneratedRegex(@"[*+]+")]
-    private static partial Regex RegexOperands();
+    private readonly Dictionary<int, List<string>> _NumbersString = [];
+    private readonly List<OperandDefinition> _OperandsDatas = [];
+    private record OperandDefinition(char Operand, int Position);
 
     private static ulong PerformOperation(List<int> numbers, char operand) {
         ulong retValue = (ulong) (operand == '+' ? 0 : 1);
@@ -79,6 +95,48 @@ internal partial class Day06 : Day {
         }
 
         return retValue;
+    }
+
+    private static ulong PerformOperationAdvanced(List<string> numbers, char operand) {
+        ulong retValue = (ulong) (operand == '+' ? 0 : 1);
+
+        //  Read columns
+        var board = CreateMatrix(numbers, operand, numbers.First().Length);
+        for(int i = 0; i < board.X; i ++) {
+            switch(operand) {
+                case '+':
+                    retValue += ReadColumn(board, i);
+                    break;
+                case '*':
+                    retValue *= ReadColumn(board, i);
+                    break;
+            }
+        }
+
+        return retValue;
+    }
+
+    private static Board<char> CreateMatrix(List<string> numbers, char operand, int length) {
+        Board<char> board = new(length, numbers.Count);
+
+        int index = 0;
+        for(int rowIndex = 0; rowIndex < numbers.Count; rowIndex ++) {
+            for(int c = 0; c < numbers[rowIndex].Length; c ++) {
+                board.SetValue(index, numbers[rowIndex][c]);
+                index ++;
+            }
+        }
+
+        return board;
+    }
+
+    private static ulong ReadColumn(Board<char> board, int column) {
+        var strValue = string.Empty;
+        for(int row = 0; row < board.Y; row ++) {
+            var strColumn = board[column, row].ToString();
+            strValue += strColumn;
+        }
+        return ulong.Parse(strValue);
     }
 
     #endregion
