@@ -1,8 +1,3 @@
-using System.Data;
-using System.Numerics;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-
 namespace AdventOfCode_2025.Days;
 
 internal partial class Day06 : Day {
