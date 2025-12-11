@@ -36,6 +36,10 @@ internal partial class Day07 : Day {
     private const char BEAM = '|';
     private const char START = 'S';
     private const char EMPTY = '.';
+    private class Beam(Coordinate position, ulong weight = 1) {
+        public Coordinate Position => position;
+        public ulong Weight { get; set; } = weight;
+    }
 
     private int DoWork() {
         var splitGenerated = 0;
@@ -65,39 +69,65 @@ internal partial class Day07 : Day {
         return splitGenerated;
     }
 
-    private int DoWorkAdvanced() {
-        var splitGenerated = 0;
+    private void CreateBeam(Coordinate coordinate) {
+        if(_Board![coordinate] == EMPTY) {
+            _Board.SetValue(coordinate, BEAM);
+        }
+    }
+
+    private ulong DoWorkAdvanced() {
+        List<Beam> beams = [];
 
         //  Check current tile
         for(var y = 1; y < _Board!.Y; y ++) {
             for(int x = 0; x < _Board!.X; x ++) {
                 var aboveTileCoord = new Coordinate(x, y - 1);
                 var aboveTile = _Board[aboveTileCoord];
-                switch(aboveTile) {
-                    case START:
-                    case BEAM:
-                        if(_Board[x, y] == SPLITTER) {
-                            var left = new Coordinate(x - 1, y);
-                            CreateBeam(left);
-                            var right = new Coordinate(x + 1, y);
-                            CreateBeam(right);
-                            splitGenerated++; 
-                        } else {
-                            CreateBeam(new Coordinate(x, y));
-                        }
-                        break;
+                var aboveBeam = GetBeam(beams, aboveTileCoord);
+                if(aboveTile == START) {
+                    beams.Add(new(new(x, y)));
+                    _Board?.SetValue(new Coordinate(x, y), BEAM);
+                } else if(aboveBeam != null) {
+                    switch(aboveTile) {
+                        case START:
+                            break;
+                        case BEAM:
+                            if(_Board[x, y] == SPLITTER) {
+                                var leftCoordinate = new Coordinate(x - 1, y);
+                                CreateBeamAdvanced(beams, leftCoordinate, aboveBeam!.Weight);
+                                var rightCoordinate = new Coordinate(x + 1, y);
+                                CreateBeamAdvanced(beams, rightCoordinate, aboveBeam!.Weight);
+                            } else {
+                                CreateBeamAdvanced(beams, new (x, y), aboveBeam!.Weight);
+                            }
+                            break;
+                    }
                 }
             }
         }
 
-        return splitGenerated;
+        var bottomTiles = beams.Where(b => b.Position.Y == (_Board.Y - 1));
+        ulong retValue = 0;
+        foreach(var tile in bottomTiles) {
+            retValue += tile.Weight;
+        }
+        return retValue;
     }
 
-
-    private void CreateBeam(Coordinate coordinate) {
-        if(_Board![coordinate] == EMPTY) {
-            _Board.SetValue(coordinate, BEAM);
+    private void CreateBeamAdvanced(List<Beam> beams, Coordinate coordinate, ulong incomingWeight) {
+        var nearBeam = GetBeam(beams, coordinate);
+        if(nearBeam == null) {
+            beams.Add(new(coordinate, incomingWeight));
+        } else {
+            var nearBeamWeight = nearBeam?.Weight;
+            nearBeam!.Weight += incomingWeight;
         }
+
+        _Board?.SetValue(coordinate, BEAM);
+    }
+
+    private static Beam? GetBeam(List<Beam> beams, Coordinate coordinate) {
+        return beams.FirstOrDefault(b => b.Position == coordinate);
     }
 
     #endregion
