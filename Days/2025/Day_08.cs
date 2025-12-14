@@ -73,8 +73,8 @@ internal partial class Day08 : Day {
                 // Console.WriteLine($"{i.boxStart.Coords} -> {i.boxEnd.Coords} (c: {i.boxStart.Circuit}, d: {i.distance})");
             } else if(boxStart.Circuit != boxEnd.Circuit) {
                 //  Merge 2 circuits :-)
-                var circuitsToMerge = _JunctionBoxes.Where(b => b.Circuit == boxEnd.Circuit);                
-                foreach(var boxToMerge in circuitsToMerge) {
+                var boxesToMerge = _JunctionBoxes.Where(b => b.Circuit == boxEnd.Circuit);                
+                foreach(var boxToMerge in boxesToMerge) {
                     boxToMerge.Circuit = boxStart.Circuit;
                 }
                 // connections++;
@@ -88,11 +88,11 @@ internal partial class Day08 : Day {
         //  Final calculation
         var retValue = 1;
         var circuitSizes = _JunctionBoxes.Where(i => i.Circuit > 0).GroupBy(b => b.Circuit);
-        var consideredCircuits = circuitSizes.OrderByDescending(c => c.Count()).Take(3);
-        consideredCircuits.ToList().ForEach(c => retValue *= c.Count());
+        var topThreeCircuits = circuitSizes.OrderByDescending(c => c.Count()).Take(3);
+        topThreeCircuits.ToList().ForEach(c => retValue *= c.Count());
 
-        foreach(var c in consideredCircuits) {
-            Console.WriteLine($"ID: {c.Key}, {c.Count()}");
+        foreach(var circuit in topThreeCircuits) {
+            Console.WriteLine($"ID: {circuit.Key}, {circuit.Count()}");
         }
 
         return retValue;
