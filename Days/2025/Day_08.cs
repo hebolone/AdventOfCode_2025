@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace AdventOfCode_2025.Days;
 
 internal partial class Day08 : Day {
@@ -47,42 +49,27 @@ internal partial class Day08 : Day {
     private readonly List<JunctionBox> _JunctionBoxes = [];
 
     private int DoWork(int maxConnections) {
-        List<(JunctionBox boxStart, JunctionBox boxEnd, double distance)> distances = []; 
-        PopulateDistanceTable(distances);
-        var orderedDistances = distances.OrderBy(r => r.distance);
+        var distanceTable = GetDistanceTable();
+        var orderedDistances = distanceTable.OrderBy(r => r.distance).Take(maxConnections);
         int circuitID = 0;
-        int connections = 0;
 
         foreach(var (boxStart, boxEnd, distance) in orderedDistances) {
-            if(connections == maxConnections) {
-                break;
-            }
-            if(boxStart.Circuit == 0 && boxEnd.Circuit > 0) {
-                boxStart.Circuit = boxEnd.Circuit;
-                // connections++;
-                // Console.WriteLine($"{i.boxStart.Coords} -> {i.boxEnd.Coords} (c: {i.boxStart.Circuit}, d: {i.distance})");
-            } else if(boxStart.Circuit > 0 && boxEnd.Circuit == 0) {
-                boxEnd.Circuit = boxStart.Circuit;
-                // connections++;
-                // Console.WriteLine($"{i.boxStart.Coords} -> {i.boxEnd.Coords} (c: {i.boxStart.Circuit}, d: {i.distance})");
-            } else if(boxStart.Circuit == 0 && boxEnd.Circuit == 0) {
+            if(boxStart.Circuit == 0 && boxEnd.Circuit == 0) {
+                //  Create new circuit
                 var currentCircuitID = ++circuitID;
                 boxStart.Circuit = currentCircuitID;
                 boxEnd.Circuit = currentCircuitID;
-                // connections++;
-                // Console.WriteLine($"{i.boxStart.Coords} -> {i.boxEnd.Coords} (c: {i.boxStart.Circuit}, d: {i.distance})");
+            } else if(boxStart.Circuit == 0 && boxEnd.Circuit > 0) {
+                boxStart.Circuit = boxEnd.Circuit;
+            } else if(boxStart.Circuit > 0 && boxEnd.Circuit == 0) {
+                boxEnd.Circuit = boxStart.Circuit;
             } else if(boxStart.Circuit != boxEnd.Circuit) {
                 //  Merge 2 circuits :-)
                 var boxesToMerge = _JunctionBoxes.Where(b => b.Circuit == boxEnd.Circuit);                
                 foreach(var boxToMerge in boxesToMerge) {
                     boxToMerge.Circuit = boxStart.Circuit;
                 }
-                // connections++;
-                // Console.WriteLine($"{i.boxStart.Coords} -> {i.boxEnd.Coords} (c1: {i.boxStart.Circuit}, c2: {i.boxEnd.Circuit}, d: {i.distance})");
-            }/* else {
-                connections++;
-            }*/
-            connections++;
+            } 
         }
 
         //  Final calculation
@@ -98,14 +85,28 @@ internal partial class Day08 : Day {
         return retValue;
     }
 
-    private void PopulateDistanceTable(List<(JunctionBox, JunctionBox, double)> distances) {
-        int toSkip = 1;
-        foreach(var boxStart in _JunctionBoxes) {
-            foreach(var boxEnd in _JunctionBoxes.Skip(toSkip)) {
-                distances.Add((boxStart, boxEnd, CalculateDistance(boxStart.Coords, boxEnd.Coords)));
+    // private void PopulateDistanceTable(List<(JunctionBox, JunctionBox, double)> distances) {
+    //     int toSkip = 1;
+    //     foreach(var boxStart in _JunctionBoxes) {
+    //         foreach(var boxEnd in _JunctionBoxes.Skip(toSkip)) {
+    //             distances.Add((boxStart, boxEnd, CalculateDistance(boxStart.Coords, boxEnd.Coords)));
+    //         }
+    //         toSkip ++;
+    //     }
+    // }
+
+    private List<(JunctionBox boxStart, JunctionBox boxEnd, double distance)> GetDistanceTable() {
+        List<(JunctionBox, JunctionBox, double)> retValue = [];
+
+        var boxes = _JunctionBoxes.Select((v, i) => new { Index = i, Value = v });
+        foreach(var boxStart in boxes) {
+            foreach(var boxEnd in boxes.Where(b => b.Index > boxStart.Index)) {
+                var distance = CalculateDistance(boxStart.Value.Coords, boxEnd.Value.Coords);
+                retValue.Add((boxStart.Value, boxEnd.Value, distance));
             }
-            toSkip ++;
         }
+
+        return retValue;
     }
 
     private static double CalculateDistance(SpacialCoords start, SpacialCoords end) {
@@ -115,9 +116,9 @@ internal partial class Day08 : Day {
 
         double sumOfSquares = (dx * dx) + (dy * dy) + (dz * dz);
 
-        double distance = Math.Sqrt(sumOfSquares);
+//        return Math.Sqrt(sumOfSquares);
 
-        return distance;
+        return sumOfSquares;
     }
 
     #endregion
