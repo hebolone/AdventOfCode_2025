@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace AdventOfCode_2025.Days;
 
 internal partial class Day08 : Day {
@@ -9,7 +7,9 @@ internal partial class Day08 : Day {
         return DoWork(maxConnections);
     }
 
-    public override object Advanced() => -1;
+    public override object Advanced() {
+        return DoWorkAdvanced();
+    }
 
     #region Protected
 
@@ -69,9 +69,40 @@ internal partial class Day08 : Day {
         var topThreeCircuits = circuitSizes.OrderByDescending(c => c.Count()).Take(3);
         topThreeCircuits.ToList().ForEach(c => retValue *= c.Count());
 
-        // foreach(var circuit in topThreeCircuits) {
-        //     Console.WriteLine($"ID: {circuit.Key}, {circuit.Count()}");
-        // }
+        return retValue;
+    }
+
+    private int DoWorkAdvanced() {
+        var distanceTable = GetDistanceTable();
+        var orderedDistances = distanceTable.OrderBy(r => r.distance);
+        int circuitID = 0;
+        int retValue = 0;
+
+        List<JunctionBox> circuits = [];
+
+        foreach(var (boxStart, boxEnd, distance) in orderedDistances) {
+            if(boxStart.Circuit == 0 && boxEnd.Circuit == 0) {
+                //  Create new circuit
+                var currentCircuitID = ++circuitID;
+                boxStart.Circuit = currentCircuitID;
+                boxEnd.Circuit = currentCircuitID;
+            } else if(boxStart.Circuit == 0 && boxEnd.Circuit > 0) {
+                boxStart.Circuit = boxEnd.Circuit;
+            } else if(boxStart.Circuit > 0 && boxEnd.Circuit == 0) {
+                boxEnd.Circuit = boxStart.Circuit;
+            } else if(boxStart.Circuit != boxEnd.Circuit) {
+                //  Merge 2 circuits :-)
+                var boxesToMerge = _JunctionBoxes.Where(b => b.Circuit == boxEnd.Circuit);                
+                boxesToMerge.ToList().ForEach(b => b.Circuit = boxStart.Circuit);
+            }
+
+            //  Check if this is the final connection :-)
+            var circuitSizes = _JunctionBoxes.Where(i => i.Circuit > 0).GroupBy(b => b.Circuit);
+            if(circuitSizes.Count() == 1 && circuitSizes.First().Count() == _JunctionBoxes.Count) {
+                retValue = boxStart.Coords.X * boxEnd.Coords.X;
+                break;
+            }
+        }
 
         return retValue;
     }
@@ -96,8 +127,6 @@ internal partial class Day08 : Day {
         double dz = end.Z - start.Z;
 
         double sumOfSquares = (dx * dx) + (dy * dy) + (dz * dz);
-
-//        return Math.Sqrt(sumOfSquares);
 
         return sumOfSquares;
     }

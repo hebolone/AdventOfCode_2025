@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography.X509Certificates;
-
 namespace AdventOfCode_2025.Days;
 
 internal partial class Day07 : Day {
