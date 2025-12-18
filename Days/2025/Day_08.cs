@@ -29,22 +29,9 @@ internal partial class Day08 : Day {
     private record SpacialCoords(int X, int Y, int Z) {
         public override string ToString()=> $"[{X},{Y},{Z}]";
     }
-    private class JunctionBox(SpacialCoords coords) : IEquatable<JunctionBox>{
+    private class JunctionBox(SpacialCoords coords) {
         public SpacialCoords Coords => coords;
         public int Circuit { get; set; } = 0;
-        public bool Equals(JunctionBox other) {
-            return Coords.X == other.Coords.X && Coords.Y == other.Coords.Y && Coords.Z == other.Coords.Z;
-        }
-
-        public override bool Equals(object obj) {
-            if (obj is JunctionBox other) {
-                return Equals(other);
-            }
-            return false;
-        }
-
-        public static bool operator ==(JunctionBox p1, JunctionBox p2) => p1.Equals(p2);
-        public static bool operator !=(JunctionBox p1, JunctionBox p2) => !(p1 == p2);
     }
     private readonly List<JunctionBox> _JunctionBoxes = [];
 
@@ -52,6 +39,8 @@ internal partial class Day08 : Day {
         var distanceTable = GetDistanceTable();
         var orderedDistances = distanceTable.OrderBy(r => r.distance).Take(maxConnections);
         int circuitID = 0;
+
+        List<JunctionBox> circuits = [];
 
         foreach(var (boxStart, boxEnd, distance) in orderedDistances) {
             if(boxStart.Circuit == 0 && boxEnd.Circuit == 0) {
@@ -66,10 +55,12 @@ internal partial class Day08 : Day {
             } else if(boxStart.Circuit != boxEnd.Circuit) {
                 //  Merge 2 circuits :-)
                 var boxesToMerge = _JunctionBoxes.Where(b => b.Circuit == boxEnd.Circuit);                
-                foreach(var boxToMerge in boxesToMerge) {
-                    boxToMerge.Circuit = boxStart.Circuit;
-                }
-            } 
+                // foreach(var boxToMerge in boxesToMerge) {
+                //     boxToMerge.Circuit = boxStart.Circuit;
+                // }
+
+                boxesToMerge.ToList().ForEach(b => b.Circuit = boxStart.Circuit);
+            }
         }
 
         //  Final calculation
@@ -78,22 +69,12 @@ internal partial class Day08 : Day {
         var topThreeCircuits = circuitSizes.OrderByDescending(c => c.Count()).Take(3);
         topThreeCircuits.ToList().ForEach(c => retValue *= c.Count());
 
-        foreach(var circuit in topThreeCircuits) {
-            Console.WriteLine($"ID: {circuit.Key}, {circuit.Count()}");
-        }
+        // foreach(var circuit in topThreeCircuits) {
+        //     Console.WriteLine($"ID: {circuit.Key}, {circuit.Count()}");
+        // }
 
         return retValue;
     }
-
-    // private void PopulateDistanceTable(List<(JunctionBox, JunctionBox, double)> distances) {
-    //     int toSkip = 1;
-    //     foreach(var boxStart in _JunctionBoxes) {
-    //         foreach(var boxEnd in _JunctionBoxes.Skip(toSkip)) {
-    //             distances.Add((boxStart, boxEnd, CalculateDistance(boxStart.Coords, boxEnd.Coords)));
-    //         }
-    //         toSkip ++;
-    //     }
-    // }
 
     private List<(JunctionBox boxStart, JunctionBox boxEnd, double distance)> GetDistanceTable() {
         List<(JunctionBox, JunctionBox, double)> retValue = [];
