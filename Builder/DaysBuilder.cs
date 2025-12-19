@@ -95,7 +95,7 @@ internal class DaysBuilder(string basePath) : IDaysBuilder {
 
     private string GetInputFileName(int id, bool isTest) => Path.Combine(_BasePath, $"day_{id:00.##}{(isTest ? "_test" : "")}.txt");
     
-    private (object result, long elapsedMilliseconds) Execution(Func<object> func) {
+    private static (object result, long elapsedMilliseconds) Execution(Func<object> func) {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
         var result = func();

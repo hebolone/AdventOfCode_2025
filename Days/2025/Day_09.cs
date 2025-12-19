@@ -2,10 +2,7 @@ namespace AdventOfCode_2025.Days;
 
 internal partial class Day09 : Day {
 
-    public override object Basic() {
-        var areas = DoWork();
-        return areas.Max(r => r.Item3);
-    }
+    public override object Basic() => DoWork();
 
     public override object Advanced() {
         return -1;
@@ -26,20 +23,38 @@ internal partial class Day09 : Day {
     #region Private
 
     private List<Coordinate> _RedTiles = [];
+    private enum TOrientation { NW, NE, SE, SW };
 
-    private List<(Coordinate, Coordinate, ulong)> DoWork() {
-        List<(Coordinate, Coordinate, ulong)> retValue = [];
+    private ulong DoWork() {
+        List<ulong> areas = [];
         
         //  Get all possible rectangles
         var rectangles = CreateRectanglesTable();
 
         foreach(var (r1, r2) in rectangles) {
             ulong area = ((ulong) (Math.Abs(r2.X - r1.X) + 1)) * ((ulong) (Math.Abs(r2.Y - r1.Y) + 1));
-            retValue.Add((r1, r2, area));
+            areas.Add(area);
         }
 
-        return retValue;
+        return areas.Max();
     }
+
+    private ulong DoWorkAdvanced() {
+        List<ulong> areas = [];
+
+        //  Create fence around red tiles
+        var fencedRedTiles = CreateFencedRedTiles();
+        
+        //  Get all possible rectangles
+        var rectangles = CreateRectanglesTable();
+
+        foreach(var (r1, r2) in rectangles) {
+            ulong area = ((ulong) (Math.Abs(r2.X - r1.X) + 1)) * ((ulong) (Math.Abs(r2.Y - r1.Y) + 1));
+            areas.Add(area);
+        }
+
+        return areas.Max();
+    } 
 
     private List<(Coordinate r1, Coordinate r2)> CreateRectanglesTable() {
         List<(Coordinate r1, Coordinate r2)> rectangles = [];
@@ -54,6 +69,13 @@ internal partial class Day09 : Day {
         return rectangles;
     }
 
+    private List<(Coordinate, TOrientation)> CreateFencedRedTiles() {
+        List<(Coordinate, TOrientation)> retValue = [];
+        var start = _RedTiles.MinBy(t => t.X + t.Y)!;
+
+        return retValue;
+    }
+    
     #endregion
 
 }
