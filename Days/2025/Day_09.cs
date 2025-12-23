@@ -4,9 +4,7 @@ internal partial class Day09 : Day {
 
     public override object Basic() => DoWork();
 
-    public override object Advanced() {
-        return -1;
-    }
+    public override object Advanced() => DoWorkAdvanced();
 
     #region Protected
 
@@ -22,7 +20,7 @@ internal partial class Day09 : Day {
 
     #region Private
 
-    private List<Coordinate> _RedTiles = [];
+    private readonly List<Coordinate> _RedTiles = [];
     private enum TOrientation { NW, NE, SE, SW };
 
     private ulong DoWork() {
@@ -72,9 +70,34 @@ internal partial class Day09 : Day {
     private List<(Coordinate, TOrientation)> CreateFencedRedTiles() {
         List<(Coordinate, TOrientation)> retValue = [];
         var start = _RedTiles.MinBy(t => t.X + t.Y)!;
+        var completed = false;
+        Coordinate current = start;
+
+        do {
+            retValue.Add((current, TOrientation.NW));
+            current = SearchNext(current);
+            completed = current == start;
+            break;
+        } while(!completed);
 
         return retValue;
     }
+
+    private Coordinate SearchNext(Coordinate start) {
+        //var east = _RedTiles.Where(t => t.Y == start.Y && t.X > start.X).MinBy(t => t.X);
+        // var south = _RedTiles.Where(t => t.X == start.X && t.Y > start.Y).MinBy(t => t.Y);
+        // var west = _RedTiles.Where(t => t.Y == start.Y && t.X < start.X).MaxBy(t => t.X);
+        // var north = _RedTiles.Where(t => t.X == start.X && t.Y < start.Y).MaxBy(t => t.Y);
+
+        List<Coordinate?> directions = [
+            _RedTiles.Where(t => t.Y == start.Y && t.X > start.X).MinBy(t => t.X),  //  East
+            _RedTiles.Where(t => t.X == start.X && t.Y > start.Y).MinBy(t => t.Y),  //  South
+            _RedTiles.Where(t => t.Y == start.Y && t.X < start.X).MaxBy(t => t.X),  //  West
+            _RedTiles.Where(t => t.X == start.X && t.Y < start.Y).MaxBy(t => t.Y)   //  North
+        ];
+
+        return directions.First(d => d is not null)!;
+    } 
     
     #endregion
 
